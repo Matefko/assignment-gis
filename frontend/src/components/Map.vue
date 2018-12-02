@@ -108,7 +108,7 @@
                 map: null,
                 zoom:12,
                 center: L.latLng(48.1386, 17.121506),
-                url:'https://api.mapbox.com/styles/v1/matefko/cjortywh3229o2ro49kiy4nq4/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibWF0ZWZrbyIsImEiOiJjam5ycXNnbzYwYTdyM3BsOG55MnhyaHI1In0.bemuMa-aC4Cj3MeCGQeXfg',
+                url:'https://api.mapbox.com/styles/v1/matefko/cjp77kzwj3lvp2sqjkvowuy6w/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibWF0ZWZrbyIsImEiOiJjam5ycXNnbzYwYTdyM3BsOG55MnhyaHI1In0.bemuMa-aC4Cj3MeCGQeXfg',
                 attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
                 marker: null,
                 polygon : [],

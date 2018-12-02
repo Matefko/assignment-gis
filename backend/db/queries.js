@@ -97,33 +97,11 @@ queries.district_parking = function(values) {
     let q = `WITH district as (
              (SELECT way FROM planet_osm_polygon WHERE osm_id = $1)
             )
-            SELECT st_asgeojson(way) as geojson, name, osm_id, round(st_area(way::geography)::numeric, 2) as area from planet_osm_polygon WHERE amenity = 'parking' and (SELECT * FROM district) && way AND st_contains((SELECT * FROM district), way)`;
+            SELECT st_asgeojson(way) as geojson, name, osm_id, round(st_area(way::geography)::numeric, 2) as area from planet_osm_polygon WHERE amenity = 'parking' and st_contains((SELECT * FROM district), way)`;
 
 
     return {
         name: 'district-parking',
-        text: q,
-        values: values
-    };
-}
-
-queries.parking_area = function(values) {
-    let q = `SELECT st_area(st_difference(sub.way, st_union(sub.aisle))::geography) as area_without_roads, st_area(sub.way::geography) as area FROM (SELECT p.osm_id, p.way, r.osm_id, r.highway, r.name, r.way as aisle
-                                                                                                                       FROM planet_osm_polygon p,
-                                                                                                                            planet_osm_roads r
-                                                                                                                       WHERE p.way && r.way
-                                                                                                                         AND p.osm_id = $1
-                                                                                                                       UNION
-                                                                                                                       SELECT p.osm_id, p.way, l.osm_id, l.highway, l.name, l.way as aisle
-                                                                                                                       FROM planet_osm_polygon p,
-                                                                                                                            planet_osm_line l
-                                                                                                                       WHERE p.way && l.way
-                                                                                                                         AND p.osm_id = $1) sub
-             WHERE st_intersects(sub.way, sub.aisle)
-             GROUP BY sub.way`;
-
-    return {
-        name: 'parking-area',
         text: q,
         values: values
     };
@@ -141,12 +119,12 @@ queries.buildings = function() {
 
 queries.building_parking = function(values) {
     let q = `with building as (
-              (SELECT way FROM planet_osm_polygon WHERE osm_id = $1)
+              SELECT way FROM planet_osm_polygon WHERE osm_id = $1
             ), buffer as (
                             SELECT st_buffer((SELECT * FROM building)::geography, $2, 64))
               SELECT st_asgeojson(p.way) as geojson, p.osm_id, p.name, st_distance(p.way::geography, (SELECT * FROM building)) as distance,
                round(st_area(p.way::geography)::numeric, 2) as area FROM planet_osm_polygon p
-                                WHERE p.amenity = 'parking' AND p.way && (SELECT * FROM buffer) AND st_intersects(p.way, (SELECT * FROM buffer))`;
+                                WHERE p.amenity = 'parking' AND st_intersects(p.way, (SELECT * FROM buffer))`;
 
     return {
         name: 'building-parking',
