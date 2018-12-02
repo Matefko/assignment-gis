@@ -1,0 +1,58 @@
+{
+  "routes": [
+    {
+      "url": "/sport_types",
+      "method": "get",
+      "controller": "map",
+      "call": "getSportTypes"
+    },
+    {
+      "url": "/parking_nearby",
+      "method": "get",
+      "controller": "map",
+      "call": "getParkingNearby"
+    },
+    {
+      "url": "/parking_nearby_intersect",
+      "method": "get",
+      "controller": "map",
+      "call": "getParkingNearbyIntersect"
+    },
+    {
+      "url": "/sport_park",
+      "method": "get",
+      "controller": "map",
+      "call": "getSportPark"
+    },
+    {
+      "url": "/districts",
+      "method": "get",
+      "controller": "map",
+      "call": "getDistricts"
+    },
+    {
+      "url": "/district/:osm_id/parking",
+      "method": "get",
+      "controller": "map",
+      "call": "getDistrictParking"
+    },
+    {
+      "url": "/buildings",
+      "method": "get",
+      "controller": "map",
+      "call": "getBuildings"
+    },
+    {
+      "url": "/building/:osm_id/parking/:perimeter",
+      "method": "get",
+      "controller": "map",
+      "call": "getBuildingParking"
+    },
+    {
+      "url": "/parking/:osm_id/diff",
+      "method": "get",
+      "controller": "map",
+      "call": "getParkingDiff"
+    }
+  ]
+}

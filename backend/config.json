@@ -1,0 +1,19 @@
+{
+	"pg": {
+		"conString": "postgres://postgres@localhost:5432/gis",
+        "host": "localhost",
+        "port": 5432,
+        "user": "matuskalafut",
+        "database": "gis",
+		"idleTimeoutMillis": 60000,
+		"max": 5
+	},
+	"port": 3000,
+	"dir": {
+		"excluded": [
+			"node_modules",
+			"settings",
+			"db"
+		]
+	}
+}
