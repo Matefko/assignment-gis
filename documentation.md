@@ -1,3 +1,4 @@
+#Autor: Matúš Kalafut
 # Prehľad
 
 Aplikácia vyhľadáva a zobrazuje parkoviská v Bratislave a jej okolí. V aplikácií je možné:
