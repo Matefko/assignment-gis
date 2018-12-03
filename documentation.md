@@ -6,7 +6,7 @@ Aplikácia vyhľadáva a zobrazuje parkoviská v Bratislave a jej okolí. V apli
 - vyhľadať parkoviská v okolí vybranej novostavby
 - BONUS: vyhľadá najkratšiu cestu na vybrané športovisko a následne do parku od zadanej polohy
 
-V aplikácií je následne ku každému parkovisku zobrazovaná je rozloha, názov a ak sa jedná o hľadanie v nejakom okolí, tak aj vzdialenosť od zadaného bodu.
+V aplikácií je následne ku každému parkovisku zobrazovaná rozloha, názov a ak sa jedná o hľadanie v nejakom okolí, tak aj vzdialenosť od zadaného bodu.
 Ďalej je možné každé parkovisko zobraziť bez ciest, ktoré obsahuje, teda iba čisto parkovaciu plochu a zobrazí sa aj rozloha tejto plochy v informáciách.
 
 Screenshot z aplikácie:
@@ -14,11 +14,12 @@ Screenshot z aplikácie:
 ![Screenshot](screen.png)
 
 Aplikácia sa skladá z 3 častí:
-- postgres databáza s postgis
-- backend server založený na Node.js, ktorý poskytuje GeoJSON API pre klientskú aplikáciu
-- klientskú aplikáciu napísanú vo Vue.js, ktorá zobrazuje Leaflet mapu
+- [klientská aplikácia](#frontend) napísanú vo Vue.js, ktorá zobrazuje Leaflet mapu
+- postgres [databáza](#data) s postgis
+- [backend](#backend) server založený na Node.js, ktorý poskytuje GeoJSON API pre klientskú aplikáciu
 
-# Klientská aplikácia
+
+# Frontend
 
 Aplikácia bola implementovaná vo frameworku [Vue](https://vuejs.org/). Pre zobrazenie mapy bola využitá knižnica [Leaflet](https://leafletjs.com/).
 Základ mapy je z [mapboxu](https://www.mapbox.com/), pričom bola upravená na [vlastný štýl](https://api.mapbox.com/styles/v1/matefko/cjp77kzwj3lvp2sqjkvowuy6w.html?fresh=true&title=true&access_token=pk.eyJ1IjoibWF0ZWZrbyIsImEiOiJjam5ycXNnbzYwYTdyM3BsOG55MnhyaHI1In0.bemuMa-aC4Cj3MeCGQeXfg#17.5/48.133650/17.101351/0). Boli pridané parkoviská (zvýraznené na mape a pridaná ikona), zobrazujú sa všetky cesty.
@@ -26,14 +27,14 @@ Na prepojenie Leaflet mapy a Vue.js frameworku bola použitá knižnica [Vue2Lea
 
 # Backend
 
-Backend server je napísaný v [Node.js](https://nodejs.org/en/) a je zodpovedný za získavanie dát z databázy, ktoré poskytuje klientskej aplikácií.
-Na pripojenie k PostgreSQL databáze bol použitý modul [node-postgres](https://node-postgres.com/). Server upravuje dáta do správneho formátu, predtým ako sú poskytnuté klientskej aplikácií.
+Backend server je napísaný v [Node.js](https://nodejs.org/en/) a je zodpovedný za získavanie dát z databázy, ktoré poskytuje klientskej aplikácií prostredníctvom REST API.
+Na pripojenie k PostgreSQL databáze bol použitý modul [node-postgres](https://node-postgres.com/). Server upravuje dáta do správneho GeoJSON formátu, predtým ako sú poskytnuté klientskej aplikácií.
 
 
-## Dáta
+## Data
 
 Dáta pochádzajú z OpenStreetMap a boli importnuté pomocou nástroja [osm2pgsql](https://wiki.openstreetmap.org/wiki/Osm2pgsql) do štandardnej OSM schémy.
-Stiahnutá bola oblasť Bratislavy a blízkeho okolia (asi 660MB). 
+Stiahnutá bola oblasť Bratislavy a blízkeho okolia (asi 660MB). Dáta boli dodatabázy importované v 4326 projekcií. 
 
 ### Práca s dátami
 
@@ -135,7 +136,7 @@ create materialized view sport_park_distance as
 
 **Nájdi všetky parkoviská v zadanom okolí od bodu**
 
-`GET /parking_nearby?lat=48.13243808483985&lng=17.101501822471622&perimeter=500 `
+`GET /parking_nearby?lat=48.13243808483985&lng=17.101501822471622&perimeter=500`
 
 ````sql
 WITH point as (SELECT ST_SetSRID(ST_MakePoint($1, $2),4326)::geography), 
@@ -151,6 +152,7 @@ SELECT st_asgeojson(distances.parking_way) as geojson,
        distances.distance, distances.name, distances.osm_id 
 FROM distances WHERE distance <= $3
 ````
+![Screenshot](uc1.png)
 
 **Nájdi všetky parkoviská v zadanom okolí od bodu a zobraz ako prienik s okolím**
 
@@ -174,6 +176,7 @@ SELECT st_asgeojson(intersections.geom) as geojson,
        intersections.name 
 FROM intersections
 ```
+![Screenshot](uc2.png)
 
 **Nájdi najkratšiu cestu športovisko-park od zadaného bodu**
 
@@ -193,6 +196,7 @@ FROM (
     ) sub
   ) line_sub
 ```
+![Screenshot](uc3.png)
 
 **Zobraz mestské časti Bratislavy**
 
@@ -208,6 +212,7 @@ FROM districts d, parkings p
 WHERE st_contains(d.way, p.way) 
 GROUP BY d.osm_id, d.name, d.way
 ```
+![Screenshot](uc4.png)
 
 **Zobraz parkoviská v mestskej časti**
 
@@ -234,6 +239,7 @@ SELECT st_asgeojson(way) as geojson,
 FROM planet_osm_polygon 
 WHERE construction IN ('residential', 'apartments')
 ```
+![Screenshot](uc5.png)
 
 **Zobraz parkoviská v zadanom okolí novostavby**
 
@@ -250,6 +256,7 @@ SELECT st_asgeojson(p.way) as geojson,
 FROM planet_osm_polygon p
 WHERE p.amenity = 'parking' AND st_intersects(p.way, (SELECT * FROM buffer))
 ```
+![Screenshot](uc6.png)
 
 **Zobraz parkovisko bez ciest (šírka cesty 1,8m)**
 
@@ -270,7 +277,7 @@ SELECT round(st_area(diff::geography)::numeric, 2) as area_diff,
         st_asgeojson(diff) as geojson 
 FROM difference
 ```
-
+![Screenshot](uc7.png)
 
 ### Response
 
@@ -292,5 +299,6 @@ API vracia pole json objektov v tvare napr:
        name: 'parking',
        distance: '487.54621782 m',
        area: '186.94 m2' } },
+       ...
 ```
 Pole coordinates bolo kvôli prehľadnosti zjednodušené. Kľúč geometry v odpovedi je vytvorený pomocou `st_asgeojson` funckie.

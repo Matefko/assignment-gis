@@ -20,8 +20,8 @@ Build a map-based application, which lets the user see geo-based data on a map a
 
 Fill in (either in English, or in Slovak):
 
-**Application description**: `<fill in>`
+**Application description**: `Aplikácia pre vyhľadávanie parkovísk v oblasti Bratislavy v zadanom okolí, mestských častiach alebo v okolí novostávb.`
 
-**Data source**: `<fill in>`
+**Data source**: `OSM`
 
-**Technologies used**: `<fill in>`
+**Technologies used**: `PostgreSQL + PostGis, Node.js, Vue.js + Leaflet`
